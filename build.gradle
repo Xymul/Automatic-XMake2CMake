@@ -1,0 +1,67 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '2.4.20'
+    id 'org.jetbrains.intellij.platform' version '2.19.0'
+}
+
+group = 'io.xymul.xmpp'
+version = '1.0-SNAPSHOT'
+
+// Local (read-only) environment, see gradle.properties
+def localIdePath = providers.gradleProperty('localIdePath').get()
+def xmakePluginId = providers.gradleProperty('xmakePluginId').get()
+def xmakePluginVersion = providers.gradleProperty('xmakePluginVersion').get()
+
+repositories {
+    mavenCentral()
+    intellijPlatform {
+        defaultRepositories()
+    }
+}
+
+dependencies {
+    intellijPlatform {
+        // IntelliJ Platform SDK: the locally installed CLion 2026.2 (read only, never modified).
+        local(localIdePath)
+
+        // The existing XMake plugin (io.xmake), resolved from JetBrains Marketplace into
+        // GRADLE_USER_HOME (D:\Environment\gradle.repo) and installed into the runIde sandbox.
+        plugin(xmakePluginId, xmakePluginVersion)
+    }
+
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+}
+
+intellijPlatform {
+    // Do not launch the IDE while building.
+    buildSearchableOptions = false
+    // No Swing forms are used, so bytecode instrumentation is not required.
+    instrumentCode = false
+    // Keep the sandbox used by runIde/runClient inside this project.
+    sandboxContainer = layout.buildDirectory.dir('idea-sandbox')
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+kotlin {
+    jvmToolchain(25)
+}
+
+// The license is shipped with the plugin as META-INF/LICENSE.txt inside the plugin jar.
+// LICENSE.txt in the project root is the single source of truth, so no copy has to be kept in
+// src/main/resources and nothing can get out of sync.
+tasks.named('processResources') {
+    from('LICENSE.txt') {
+        into 'META-INF'
+    }
+}
+
+tasks {
+    test {
+        useJUnitPlatform()
+    }
+}

@@ -1,0 +1,7 @@
+<!-- Plugin descriptor fragment that is loaded only when the XMake plugin (io.xmake) is installed.
+     Automatic XMake2CMake talks to io.xmake at runtime through
+     io.xymul.xmpp.xmake2cmake.xmake.XMakeToolkitBridge (reflection on ToolkitManager /
+     XMakeBuildProfileManager) in order to reuse the xmake executable configured in the XMake plugin,
+     so no extension point of io.xmake has to be declared here. -->
+<idea-plugin>
+</idea-plugin>

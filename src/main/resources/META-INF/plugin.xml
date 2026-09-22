@@ -1,0 +1,87 @@
+<!-- Plugin descriptor for Automatic-XMake2CMake.
+     See https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>Automatic-XMake2CMake</id>
+    <name>Automatic XMake2CMake</name>
+    <vendor email="3143718176@qq.com">Xymul</vendor>
+
+    <description><![CDATA[
+    <p>Generates <code>CMakeLists.txt</code> in the directory of a modified <code>xmake.lua</code>, for any
+    location inside the project.</p>
+
+    <p>The plugin cooperates with the <a href="https://plugins.jetbrains.com/plugin/17406-xmake">XMake</a>
+    plugin and uses the xmake path configured there by default; another xmake executable and additional
+    argumegonts are configurable. The XMake plugin is not required: without it the xmake executable is
+    resolved from the <code>PATH</code>.</p>
+
+    <p>Generation is triggered by saving a modified <code>xmake.lua</code>, by closing its editor tab, or,
+    for an unchanged <code>xmake.lua</code>, by invoking <b>Force Update CMakeLists.txt</b> (context menu,
+    or the default <b>Ctrl+S</b> shortcut, rebindable in <i>Settings | Keymap</i>); that last case requests
+    confirmation first.</p>
+
+    <p>The project description is validated with <code>xmake f -y</code> before generation.
+    <i>Settings | Tools | Automatic XMake2CMake</i> provides three modes: confirmation before each
+    generation, generation without confirmation, and disabled.</p>
+
+    <p>External modifications made while the project or the file is closed are not detected.</p>
+
+    <hr/>
+
+    <p>在项目内任意位置，<code>xmake.lua</code> 被修改后，自动在其所在目录生成 <code>CMakeLists.txt</code>。</p>
+
+    <p>本插件与 <a href="https://plugins.jetbrains.com/plugin/17406-xmake">XMake</a> 插件协作，默认使用其中配置的
+    xmake 路径；可配置其它 xmake 可执行文件与附加参数。XMake 插件并非必需：未安装时从系统 <code>PATH</code> 解析
+    xmake。</p>
+
+    <p>触发方式：保存已修改的 <code>xmake.lua</code>；关闭其编辑器标签页；对未修改的 <code>xmake.lua</code>
+    调用 <b>Force Update CMakeLists.txt</b>（右键菜单，或默认快捷键 <b>Ctrl+S</b>，可在
+    <i>Settings | Keymap</i> 中修改），该方式先请求确认。</p>
+
+    <p>生成前使用 <code>xmake f -y</code> 校验工程描述。<i>Settings | Tools | Automatic XMake2CMake</i>
+    提供三种模式：每次生成前确认、无需确认、不自动生成。</p>
+
+    <p>项目关闭期间或文件关闭后发生的外部修改不会被检测。</p>
+    ]]></description>
+
+    <!-- The XMake plugin (io.xmake) is used when available, but the plugin also works standalone. -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends optional="true" config-file="xmake-integration.xml">io.xmake</depends>
+
+    <idea-version since-build="262"/>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService
+                serviceImplementation="io.xymul.xmpp.xmake2cmake.settings.XMake2CMakeSettings"/>
+
+        <applicationConfigurable
+                id="io.xymul.xmpp.xmake2cmake.settings"
+                instance="io.xymul.xmpp.xmake2cmake.settings.XMake2CMakeConfigurable"
+                displayName="Automatic XMake2CMake"
+                parentId="tools"/>
+
+        <notificationGroup id="Automatic XMake2CMake.Notification" displayType="BALLOON"/>
+
+        <projectService
+                serviceImplementation="io.xymul.xmpp.xmake2cmake.listener.XMake2CMakeProjectService"/>
+
+        <postStartupActivity
+                implementation="io.xymul.xmpp.xmake2cmake.startup.XMake2CMakeStartupActivity"/>
+    </extensions>
+
+    <actions>
+        <!-- Manual trigger: available in the editor and project view context menus, and assignable to
+             any shortcut in Settings | Keymap. Ctrl+S is only a default and can be changed or removed.
+
+             Because the platform action "Save All" also uses Ctrl+S, the listener in
+             XMake2CMakeProjectService reacts to the save gesture as well (see
+             ForceUpdateCMakeListsAction.ACTION_ID), so the behaviour is the same whichever action wins. -->
+        <action id="Automatic-XMake2CMake.ForceUpdateCMakeLists"
+                class="io.xymul.xmpp.xmake2cmake.actions.ForceUpdateCMakeListsAction"
+                text="Force Update CMakeLists.txt"
+                description="Regenerate CMakeLists.txt from xmake.lua even when xmake.lua has not changed.">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl S"/>
+        </action>
+    </actions>
+</idea-plugin>
