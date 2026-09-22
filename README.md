@@ -1,4 +1,4 @@
-# XMakePluginPlus
+# Automatic XMake2CMake
 
 `version 1.0-SNAPSHOT`
 

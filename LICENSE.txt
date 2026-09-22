@@ -1,4 +1,4 @@
-Copyright 2026 io.xymul.xmpp
+Copyright 2026 Xymul
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
